@@ -9,12 +9,12 @@ function cn(...inputs: (string | undefined | null | false)[]) {
 }
 
 async function getUserCount() {
-    if (!process.env.DATABASE_URL) return 150000; // Mock count for demo
+    if (!process.env.DATABASE_URL) return 0;
     try {
         return await prisma.user.count();
     } catch (error) {
         console.error("Failed to fetch user count", error);
-        return 150000; // Fallback
+        return 0;
     }
 }
 

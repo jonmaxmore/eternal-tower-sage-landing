@@ -1,36 +1,110 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Eternal Tower Saga - Pre-registration Platform
 
-## Getting Started
+![Next.js](https://img.shields.io/badge/Next.js-14-black?style=for-the-badge&logo=next.js)
+![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue?style=for-the-badge&logo=typescript)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3.0-38B2AC?style=for-the-badge&logo=tailwind-css)
+![Prisma](https://img.shields.io/badge/Prisma-5.0-2D3748?style=for-the-badge&logo=prisma)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15-336791?style=for-the-badge&logo=postgresql)
 
-First, run the development server:
+**Eternal Tower Saga** is a production-grade, full-stack pre-registration platform for a high-end MMORPG. It features a visually immersive landing page with parallax effects and a robust, modular Admin CMS for real-time content management and analytics.
 
+This project demonstrates a **Server-First Architecture** using Next.js 14 App Router, ensuring optimal performance, SEO, and type safety.
+
+---
+
+## 📸 Screenshots
+
+| Landing Page | Admin Dashboard |
+|:---:|:---:|
+| *(Place screenshot of Hero Section here)* | *(Place screenshot of Admin Dashboard here)* |
+
+---
+
+## 🚀 Key Features
+
+### 🎮 User Facing (Landing Page)
+*   **Immersive Visuals:** Full-screen parallax hero section with gradient overlays and floating particles (Framer Motion).
+*   **Dynamic Theming:** The site's primary theme color and hero background can be updated instantly from the CMS without redeployment (CSS Variable Injection).
+*   **Seamless Registration:** Optimized modal-based pre-registration flow with Zod validation.
+*   **Responsive Design:** Mobile-first approach ensuring a premium experience across all devices.
+
+### 🛠️ Admin Console (CMS)
+*   **Modular Architecture:** Built with a strict separation of concerns using a fixed sidebar layout and modular widget components.
+*   **Real-time Analytics:** Interactive charts (Recharts) visualizing user growth, traffic sources, and conversion rates.
+*   **Content Management:** Update global site configuration (Meta Titles, Descriptions, Theme Colors) directly from the UI.
+*   **User Management:** View, filter, and export registered users.
+*   **Security:** Protected routes via NextAuth.js Middleware and Role-Based Access Control (RBAC).
+
+---
+
+## 🏗️ System Architecture
+
+This project adheres to **Solid Software Engineering Fundamentals**:
+
+1.  **Server Components & Actions:** Data fetching happens exclusively on the server (using Prisma), reducing client bundle size and exposing zero API secrets. Mutations are handled via Server Actions.
+2.  **Strict Type Safety:** The codebase is 100% TypeScript. Database schemas are synchronized with TypeScript interfaces via Prisma, and API inputs are validated using Zod.
+3.  **Dynamic Injection:** The `SiteConfig` is fetched at the root layout level and injected as CSS variables (`--primary`) into the document head, allowing for runtime theming with zero layout shift.
+4.  **Client/Server Boundary:** Interactive elements (Charts, Modals) are isolated as Client Components (`'use client'`), while the page structure remains Server-Side Rendered.
+
+---
+
+## 💻 Getting Started
+
+Follow these steps to run the project locally:
+
+### 1. Clone the Repository
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone https://github.com/yourusername/eternal-tower-saga.git
+cd eternal-tower-saga
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 2. Install Dependencies
+```bash
+npm install
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### 3. Configure Environment
+Create a `.env` file in the root directory:
+```env
+# Database Connection (PostgreSQL)
+DATABASE_URL="postgresql://user:password@localhost:5432/eternal_tower_saga?schema=public"
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+# NextAuth Configuration
+NEXTAUTH_URL="http://localhost:3000"
+NEXTAUTH_SECRET="your-super-secret-key"
+```
 
-## Learn More
+### 4. Database Setup
+Push the schema to your database and seed the initial admin user:
+```bash
+npx prisma db push
+npx tsx scripts/seed-admin.ts
+```
+*Default Admin Credentials:* `admin` / `admin123`
 
-To learn more about Next.js, take a look at the following resources:
+### 5. Run Development Server
+```bash
+npm run dev
+```
+Access the landing page at `http://localhost:3000` and the admin panel at `http://localhost:3000/admin`.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+---
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 📂 Project Structure
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```
+src/
+├── actions/        # Server Actions (Mutations)
+├── app/            # Next.js App Router (Pages & Layouts)
+│   ├── admin/      # Protected Admin Routes
+│   │   ├── analytics/
+│   │   ├── content/
+│   │   └── users/
+│   ├── api/        # API Routes (Auth)
+│   └── page.tsx    # Landing Page
+├── components/     # React Components
+│   ├── admin/      # Admin-specific Widgets (Sidebar, Charts)
+│   └── ui/         # Shadcn UI Components
+├── lib/            # Utilities (Prisma Client, Utils)
+└── scripts/        # Database Seed Scripts
+```

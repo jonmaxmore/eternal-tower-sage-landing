@@ -64,6 +64,7 @@ export default function PreRegModal({ isOpen, onClose }: PreRegModalProps) {
                         >
                             <button
                                 onClick={onClose}
+                                aria-label="Close modal"
                                 className="absolute top-4 right-4 text-slate-400 hover:text-white transition-colors"
                             >
                                 <X size={24} />

@@ -16,3 +16,35 @@ model User {
   ipAddress String?
   createdAt DateTime @default(now())
 }
+
+model Admin {
+  id           String   @id @default(cuid())
+  username     String   @unique
+  passwordHash String
+  createdAt    DateTime @default(now())
+}
+
+model SiteConfig {
+  id                String   @id @default(cuid())
+  themeColor        String   @default("#2563eb") // Default blue-600
+  heroBgUrl         String   @default("/images/p1-bg.webp")
+  metaTitle         String   @default("Eternal Tower Saga - Pre-register Now")
+  metaDescription   String   @default("Join the anime MMORPG adventure. Pre-register today for exclusive rewards!")
+  isMaintenanceMode Boolean  @default(false)
+  updatedAt         DateTime @updatedAt
+}
+
+model Navigation {
+  id       String  @id @default(cuid())
+  label    String
+  url      String
+  order    Int     @default(0)
+  isActive Boolean @default(true)
+}
+
+model VisitLog {
+  id        String   @id @default(cuid())
+  path      String
+  ipAddress String?
+  createdAt DateTime @default(now())
+}

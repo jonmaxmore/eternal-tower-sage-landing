@@ -78,12 +78,11 @@ export async function registerUser(prevState: State, formData: FormData): Promis
                 }
             })
         } else {
-            // Mock success if no DB (for development/demo purposes if user hasn't set up DB)
-            // But the user asked for production code. I'll leave the DB code as primary.
-            // I will throw error if DB not connected to ensure they know.
-            // Actually, better to just let it fail or log.
-            console.warn("DATABASE_URL not set. Simulating success.")
-            await new Promise(resolve => setTimeout(resolve, 1000)) // Simulate delay
+            console.error("DATABASE_URL not set.")
+            return {
+                success: false,
+                message: "System configuration error. Please contact support.",
+            }
         }
 
         return {
