@@ -1,0 +1,108 @@
+var myFullpage = new fullpage('#myContainer', { 
+  afterLoad: function (origin, destination, direction) {
+    if (destination.index > 0) {
+      $('.p2-tit').addClass('slide-in-top')
+      $('.p2-txt').addClass('fade-in-2')
+    }
+    if (destination.index > 1) {
+      $('#silentMoveTo').hide()
+    }else{
+      $('#silentMoveTo').show()
+    }
+  }
+});
+  
+$(document).ready(function () {
+  var isIOS = /iPad|iPhone|iPod/i.test(navigator.userAgent)
+  var isAndroid = /Android/i.test(navigator.userAgent)
+  
+  
+  $('.gg-bt,.ios-bt').hide();
+  if (isAndroid) {
+    $('.pre-bt-ios').hide();
+  }
+
+  if (isIOS) {
+    $('.ios-bt').show()
+  } else{
+    $('.gg-bt').show()
+  }
+
+  var regclick = false
+    Reserve.init({
+    appid: 2162,
+    reserveid: 250,
+    language: 'th',
+    country: 'th',
+    dataElementId: 'phone',
+    // codeElementId: 'xxx',
+    dataType: 'email',
+    completeFn: function (rank) {
+      if (regclick) {
+        regclick = false
+        UIkit.modal('#modal-pre-ok').show()
+      }
+    },
+    dataFailFn: function (data) {
+      $('.waring').html('กรุณาใส่อีเมล์ที่ถูกต้อง').show()
+    },
+    successFn: function () {
+      //只有填写手机号才会调用
+      // fbq('track', 'CompleteRegistration')
+      //gtag_report_conversion()
+    },
+  })
+  Reserve.interview()
+
+  $('.reg_btn').click(function (e) {
+    e.preventDefault()
+    if ($('#chk1').is(':checked')) {
+      regclick = true
+      Reserve.data()
+    } else {
+      $('.waring').html('กรุณายอมรับข้อตกลงผู้ใช้').show()
+    }
+  })
+  // 点击输入框提示消失
+  $('#phone').focus(function () {
+    $('.waring').hide()
+  })
+
+  $('.ios-bt').click(function () {
+    // fbq('track', 'CompleteRegistration')
+    //gtag_report_conversion()
+    Reserve.appStore()
+    setTimeout(function() {
+      UIkit.modal('#modal-pre-ok').show()
+    }, 2000);
+  })
+  $('.gg-bt').click(function () {
+    // fbq('track', 'CompleteRegistration')
+    //gtag_report_conversion()
+    Reserve.googleplay()
+    setTimeout(function() {
+      UIkit.modal('#modal-pre-ok').show()
+    }, 2000);
+  })
+
+
+
+  // youtube
+  $('.vod-play').on('click', function () {
+    $('#vodif').attr('src', $(this).attr('data-href'))
+  })
+
+  $('#modal-video,.btn-play-close').on('click', function () {
+    $('#vodif').attr('src', '')
+  })
+
+  document.querySelector('#lanSel').addEventListener('change', function () {
+    const selectedValue = this.value
+    if (selectedValue) {
+      // 检查是否选择了有效的选项
+      window.location.href = selectedValue // 跳转到选择的URL
+    }
+  })
+
+});
+

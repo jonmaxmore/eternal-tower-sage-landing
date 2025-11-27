@@ -1,0 +1,367 @@
+(function($){
+  var baseUrl = 'https://gas.17996api.net';
+  var counterPath = '/reserve/counter';
+  var dataPath = '/reserve/data';
+  var rankPath = '/reserve/counter/total'
+
+  var __opts = {
+    appid: 0,
+    reserveid: 0,
+    language: '',
+    dataElementId: '',
+    codeElementId: '',
+    country: '',
+    dataType: ''
+  }
+
+  function getArgs() {
+    var args = new Object();
+    var query = location.search.substring(1);
+    var pairs = query.split("&");
+    for (var i = 0; i < pairs.length; i++) {
+        var pos = pairs[i].indexOf('=');
+        if (pos == -1) continue;
+        var argname = pairs[i].substring(0, pos);
+        var value = pairs[i].substring(pos + 1);
+        value = decodeURIComponent(value);
+        args[argname] = value;
+    }
+    return args;
+}
+
+function addCookie(name,value,expiresHours){
+  var cookieString=name+"="+encodeURIComponent(value);
+  if(expiresHours>0){
+      var date=new Date();
+      date.setTime(date.getTime+expiresHours*3600*1000);
+      cookieString=cookieString+"; expires="+date.toGMTString();
+  }
+  cookieString += "; path=/";
+  document.cookie=cookieString;
+}
+
+function getCookie(name){
+  var strCookie=document.cookie;
+  var arrCookie=strCookie.split("; ");
+  for(var i=0;i<arrCookie.length;i++){
+      var arr=arrCookie[i].split("=");
+      if(arr[0]==name)return decodeURIComponent(arr[1]);
+  }
+  return "";
+}
+
+function getFUID(args){
+  var fuid;
+  if(args["fuid"] || args["Fuid"]) {
+      fuid = args["fuid"] || args["Fuid"];
+  }else if(args['reqcode']){
+      fuid = 'fenxiang';
+  }
+  if(!fuid && document.referrer){
+      var parse_url = /^(?:([A-Za-z]+):)?(\/{0,3})([0-9.\-A-Za-z]+)(?::(\d+))?(?:\/([^?#]*))?(?:\?([^#]*))?(?:#(.*))?/;
+      fuid='k_' + parse_url.exec(document.referrer)[3];
+  }
+  return fuid || '';
+}
+
+  var __parseQueryString = function(opts) {
+    var ret = [];
+    $.map( opts, function( val, i ) {
+      ret.push(i + '=' + encodeURIComponent(val))
+    });
+    return ret.join('&')
+  }
+  var __req = function(path, opts) {
+    var url = baseUrl + path + '?' + __parseQueryString(opts)
+    $.getScript(url, function() {})
+  }
+
+  var __formatPhone = function(phone, cCode) {
+    phone = phone.replace('+', '');
+    if(phone.indexOf('0') == 0)
+        phone = phone.substring(1);
+    if(cCode.length > 0 && phone.indexOf(cCode) == 0)
+        phone = phone.substring(cCode.length);
+
+    if(phone.indexOf('0') == 0)
+        phone = phone.substring(1);
+    phone = cCode + phone;
+    console.log('formatPhone ' + phone)
+    return phone;
+  }
+
+  
+
+  var __data_action = function(cookiename, data, dataType) {
+    console.log('__data_action ' + cookiename, data, dataType)
+    var __isValidData = function() {
+      var isValid = false;
+      if(!data) return isValid;
+      if(dataType === 'email'){
+        isValid = /\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*/.test(data);
+      } else {
+        if(dataType === 'golbal') {
+          isValid = document.getElementById(__opts.dataElementId).intlTelInput("isValidNumber");
+        } else {
+          if(__opts.country === 'kr') {
+            var reg = /^\d{11}$/;
+            isValid = reg.test(data);
+          } else if (__opts.country === 'cn') {
+            var reg = /^1[0-9]{10}$/;
+            isValid = reg.test(data);
+          } else {
+            var code = $('#'+__opts.codeElementId).val()
+            if(code) {
+              data = __formatPhone(data, code)
+              var reg = /^([5|6|9])\d{7}$|^852([5|6|9|7])\d{7}$|^8869\d{8}$|^[0][9]\d{8}$|^[6]\d{7}|^853[6]\d{7}$|^86\d{11}$|^65\d{8}$|^60\d{11}$/;
+              isValid = reg.test(data);
+            } else {
+              isValid = true;
+            }
+          }
+        }
+      }
+      return isValid
+    }
+
+    var completeFn = __opts.completeFn
+    var failFn = __opts.failFn
+    var successFn = __opts.successFn
+    var dataFailFn = __opts.dataFailFn
+
+    if(typeof completeFn !== 'function') {
+      completeFn = function(){console.log('complete')}
+    }
+    if(typeof failFn !== 'function') {
+      failFn = function(code){console.log('fail = ' + code)}
+    }
+    if(typeof successFn !== 'function') {
+      successFn = function(){console.log('success')}
+    }
+    if(typeof dataFailFn !== 'function') {
+      dataFailFn = function(){console.log(data)}
+    }
+
+    if(__opts.country === 'kr') {
+      data = '010' + data
+    }
+
+    if(!__isValidData()) {
+      return dataFailFn(data);
+    }
+
+    var val = getCookie(cookiename);
+    if(val && val === data) {
+      return completeFn();
+    }
+
+    addCookie(cookiename, data, 24 * 365)
+    __req(dataPath, {
+      appid: __opts.appid,
+      reserveid: __opts.reserveid,
+      language: __opts.language,
+      country: __opts.country,
+      fuid: __opts.fuid,
+      data: data,
+      callback: 'dataCB'
+    })
+
+    window.dataCB = function(data) {
+      if(data.code == '0') {
+        completeFn(data.data.rank)
+        if(!data.data.repeated){
+          successFn()
+        }
+      } else {
+        failFn(data.code)
+      }
+    }
+  }
+
+  var __counter_action = function(counter_type, cookiename) {
+    var val = getCookie(cookiename);
+    if(val === 'success') {
+      return;
+    }
+    addCookie(cookiename, 'success', 24 * 365)
+    __req(counterPath, {
+      appid: __opts.appid,
+      reserveid: __opts.reserveid,
+      language: __opts.language,
+      country: __opts.country,
+      fuid: __opts.fuid,
+      counter_type: counter_type,
+      callback: 'counterCB'
+    })
+
+    var completeFn = __opts.completeFn
+    var failFn = __opts.failFn
+
+    if(typeof completeFn !== 'function') {
+      completeFn = function(){console.log('complete')}
+    }
+    if(typeof failFn !== 'function') {
+      failFn = function(code){console.log('fail = ' + code)}
+    }
+
+    window.counterCB = function(data) {
+      if(counter_type == 1) {
+        return;
+      }
+      if(data.code == '0') {
+        completeFn()
+      } else {
+        failFn(data.code)
+      }
+    }
+  }
+
+
+
+  var __setNumber = function(phone) {
+    var getPhoneCode = function(codeLen, phone){
+      var code = phone.substr(0, codeLen);
+      switch (code){
+          case '886':
+          case '852':
+          case '853':
+              return code;
+          case '86':
+          case '65':  //新加坡
+          case '60':  //马来
+              return code;
+      }
+      if(codeLen > 2)
+          return getPhoneCode(codeLen - 1, phone);
+      return '';
+    }
+
+    if(__opts.codeElementId){
+      var code = getPhoneCode(3, phone);
+      if(code.length > 0)
+          phone = phone.substring(code.length);
+
+      if(code == '86') code = '';
+
+      $('#' + __opts.dataElementId).val(phone);
+      $('#' + __opts.codeElementId).val(code);
+    }else{
+      if(__opts.country === 'kr'){
+        phone = phone.substring(3);
+      }
+      $('#' + __opts.dataElementId).val(phone);
+    }
+  }
+
+  window.Reserve = {
+    init: function(opts){
+      var args = getArgs()
+      __opts.fuid = getFUID(args)
+      __opts = $.extend({}, __opts, opts)
+      if(__opts.country === 'cn') {
+        baseUrl = 'https://gascn.17995api.net';
+      }
+      var dataType = __opts.dataType;
+      if(dataType) {
+        var data = getCookie('data');
+        if(data) {
+          if(dataType == 'global') {
+            document.getElementById(__opts.dataElementId).intlTelInput("setNumber", '+' + data);
+          } else {
+            __setNumber(data)
+          }
+        }
+      }
+      if(dataType == 'phone' && __opts.codeElementId) {
+        $('#'+__opts.codeElementId).change(function() {
+          var phoneContainer = $('#'+__opts.dataElementId)
+          var val = $(this).val();
+          switch(val){
+              case '886':
+                  phoneContainer.attr('placeholder', '0900000000');
+                  phoneContainer.attr('maxlength', 10);
+                  break;
+              case '852':
+                  phoneContainer.attr('placeholder', '50000000');
+                  phoneContainer.attr('maxlength', 8);
+                  break;
+              case '853':
+                  phoneContainer.attr('placeholder', '66000000');
+                  phoneContainer.attr('maxlength', 8);
+                  break;
+              case '65':
+                  phoneContainer.attr('placeholder', '80000000');
+                  phoneContainer.attr('maxlength', 8);
+                  break;
+              case '60':
+                  phoneContainer.attr('placeholder', '00000000000');
+                  phoneContainer.attr('maxlength', 11);
+                  break;
+              default:
+                  phoneContainer.attr('placeholder', '國碼+手機號碼');
+                  phoneContainer.attr('maxlength', 20);
+                  break;
+          }
+        }).trigger("change")
+      }
+    },
+
+    data: function() {
+      var data = '';
+      if(__opts.dataType == 'global') {
+        data = document.getElementById(__opts.dataElementId).intlTelInput("getNumber");
+        data = data.replace('+', '');
+      } else {
+        data = $('#' + __opts.dataElementId).val();
+      }
+      __data_action('data', data, __opts.dataType)
+    },
+
+    interview: function() {
+      __counter_action(1, 'interview')
+    },
+
+    getrank: function(callback) {
+      __req(rankPath, {
+        appid: __opts.appid,
+        reserveid: __opts.reserveid,
+        callback: 'rankCB'
+      })
+      window.rankCB = callback
+    },
+
+    appStore: function() {
+      __counter_action(3, 'appstore')
+    },
+
+    googleplay: function() {
+      __counter_action(4, 'googleplay')
+    },
+
+    twitter: function() {
+      __counter_action(5, 'twitter')
+    },
+
+    facebook: function() {
+      __counter_action(6, 'facebook')
+    },
+
+    cafe: function() {
+      __counter_action(7, 'cafe')
+    },
+
+    line: function() {
+      __counter_action(8, 'line')
+    },
+
+    youtube: function() {
+      __counter_action(9, 'youtube')
+    },
+
+    steam: function() {
+      __counter_action(22, 'steam')
+    }
+  }
+
+
+})(jQuery);
