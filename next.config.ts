@@ -5,7 +5,7 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: '**',
+        hostname: '**', // ⚠️ SECURITY WARNING: This allows images from ANY domain. Restrict this in production!
       },
     ],
   },

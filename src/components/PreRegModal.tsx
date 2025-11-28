@@ -7,12 +7,13 @@ import { z } from 'zod'
 import { motion, AnimatePresence } from 'framer-motion'
 import { X, Loader2, CheckCircle } from 'lucide-react'
 import { registerUser } from '@/actions/register'
+import { GameButton } from '@/components/ui/GameButton'
 
-const schema = z.object({
-    email: z.string().email("Invalid email address"),
-})
+import { UserRegistrationSchema, UserRegistrationForm } from '@/lib/schemas'
 
-type FormData = z.infer<typeof schema>
+const schema = UserRegistrationSchema
+
+type FormData = UserRegistrationForm
 
 interface PreRegModalProps {
     isOpen: boolean
@@ -115,20 +116,12 @@ export default function PreRegModal({ isOpen, onClose }: PreRegModalProps) {
                                             </div>
                                         )}
 
-                                        <button
+                                        <GameButton
                                             type="submit"
-                                            disabled={isSubmitting}
-                                            className="w-full bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white font-bold py-3 rounded-lg shadow-lg shadow-blue-600/20 transform transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                                            isLoading={isSubmitting}
                                         >
-                                            {isSubmitting ? (
-                                                <>
-                                                    <Loader2 className="animate-spin w-5 h-5" />
-                                                    Registering...
-                                                </>
-                                            ) : (
-                                                "Join the Saga"
-                                            )}
-                                        </button>
+                                            Join the Saga
+                                        </GameButton>
                                     </form>
                                 </>
                             )}

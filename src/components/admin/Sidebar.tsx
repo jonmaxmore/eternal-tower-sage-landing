@@ -2,90 +2,55 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { LayoutDashboard, Users, FileText, BarChart3, Bell, Settings, Shield } from 'lucide-react'
+import { LayoutDashboard, Settings, FileText, LogOut } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { signOut } from 'next-auth/react'
 
-const menuGroups = [
-    {
-        title: "MAIN",
-        items: [
-            { label: 'Dashboard', href: '/admin', icon: LayoutDashboard },
-            { label: 'Analytics', href: '/admin/analytics', icon: BarChart3 },
-        ]
-    },
-    {
-        title: "CMS",
-        items: [
-            { label: 'User Management', href: '/admin/users', icon: Users },
-            { label: 'Content', href: '/admin/content', icon: FileText },
-        ]
-    },
-    {
-        title: "SYSTEM",
-        items: [
-            { label: 'Notifications', href: '/admin/notifications', icon: Bell },
-            { label: 'Settings', href: '/admin/settings', icon: Settings },
-        ]
-    }
+const navItems = [
+    { icon: LayoutDashboard, label: 'Dashboard', href: '/admin' },
+    { icon: FileText, label: 'CMS', href: '/admin/cms' },
+    { icon: Settings, label: 'Settings', href: '/admin/settings' },
 ]
 
 export default function Sidebar() {
     const pathname = usePathname()
 
     return (
-        <aside className="fixed inset-y-0 left-0 w-64 z-50 bg-[#111C44] text-white flex flex-col shadow-xl transition-all duration-300 font-sans">
-            {/* Brand Area */}
-            <div className="py-6 text-center border-b border-white/10">
-                <span className="text-xl font-bold tracking-wide uppercase text-white">
-                    ETERNAL ADMIN
-                </span>
+        <aside className="w-64 bg-slate-900 border-r border-slate-800 flex flex-col h-screen fixed left-0 top-0 z-50">
+            <div className="p-6 border-b border-slate-800">
+                <h1 className="text-xl font-bold text-white font-serif">Admin Panel</h1>
             </div>
 
-            {/* Profile Summary (Critical Fix: Fixed Size) */}
-            <div className="relative mx-auto mt-6 mb-6 text-center">
-                <div className="h-20 w-20 rounded-full object-cover border-4 border-white/20 mx-auto overflow-hidden">
-                    <Avatar className="h-full w-full">
-                        <AvatarImage src="https://github.com/shadcn.png" className="object-cover" />
-                        <AvatarFallback>AD</AvatarFallback>
-                    </Avatar>
-                </div>
-                <div className="mt-3">
-                    <p className="text-sm font-bold text-white">Admin User</p>
-                    <p className="text-xs text-gray-400">Super Admin</p>
-                </div>
-            </div>
-
-            {/* Navigation */}
-            <nav className="flex-1 px-4 space-y-6 overflow-y-auto">
-                {menuGroups.map((group, groupIndex) => (
-                    <div key={groupIndex}>
-                        <p className="px-4 text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">
-                            {group.title}
-                        </p>
-                        <div className="space-y-1">
-                            {group.items.map((item) => {
-                                const isActive = pathname === item.href
-                                return (
-                                    <Link
-                                        key={item.href}
-                                        href={item.href}
-                                        className={cn(
-                                            "flex items-center gap-3 px-6 py-3 transition-all duration-200 group relative",
-                                            isActive
-                                                ? "bg-white/10 text-white border-r-4 border-blue-500"
-                                                : "text-gray-400 hover:text-white"
-                                        )}
-                                    >
-                                        <item.icon size={20} className={cn(isActive ? "text-white" : "text-gray-400 group-hover:text-white")} />
-                                        <span className="font-medium text-sm">{item.label}</span>
-                                    </Link>
-                                )
-                            })}
-                        </div>
-                    </div>
-                ))}
+            <nav className="flex-1 p-4 space-y-2">
+                {navItems.map((item) => {
+                    const isActive = pathname === item.href
+                    return (
+                        <Link
+                            key={item.href}
+                            href={item.href}
+                            className={cn(
+                                "flex items-center gap-3 px-4 py-3 rounded-lg transition-colors",
+                                isActive
+                                    ? "bg-blue-600/10 text-blue-400"
+                                    : "text-slate-400 hover:bg-slate-800 hover:text-white"
+                            )}
+                        >
+                            <item.icon className="w-5 h-5" />
+                            <span className="font-medium">{item.label}</span>
+                        </Link>
+                    )
+                })}
             </nav>
+
+            <div className="p-4 border-t border-slate-800">
+                <button
+                    onClick={() => signOut()}
+                    className="flex items-center gap-3 px-4 py-3 w-full rounded-lg text-slate-400 hover:bg-red-500/10 hover:text-red-400 transition-colors"
+                >
+                    <LogOut className="w-5 h-5" />
+                    <span className="font-medium">Sign Out</span>
+                </button>
+            </div>
         </aside>
     )
 }

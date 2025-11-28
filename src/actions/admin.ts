@@ -1,51 +1,62 @@
-
 'use server'
 
 import prisma from '@/lib/prisma'
-import { auth } from '@/auth'
 import { revalidatePath } from 'next/cache'
+import { z } from 'zod'
 
-export async function updateSiteConfig(formData: FormData) {
-    const session = await auth()
-    if (!session) return { success: false, message: "Unauthorized" }
+const SiteConfigSchema = z.object({
+    heroBgUrl: z.string().optional(),
+    metaTitle: z.string().min(1, "Title is required"),
+    metaDescription: z.string().min(1, "Description is required"),
+    isMaintenanceMode: z.boolean().optional(),
+})
 
-    const themeColor = formData.get('themeColor') as string
-    const heroBgUrl = formData.get('heroBgUrl') as string
-    const metaTitle = formData.get('metaTitle') as string
-    const metaDescription = formData.get('metaDescription') as string
+export async function updateSiteConfig(prevState: any, formData: FormData) {
+    const rawData = {
+        heroBgUrl: formData.get('heroBgUrl'),
+        metaTitle: formData.get('metaTitle'),
+        metaDescription: formData.get('metaDescription'),
+        isMaintenanceMode: formData.get('isMaintenanceMode') === 'on',
+    }
+
+    const validated = SiteConfigSchema.safeParse(rawData)
+
+    if (!validated.success) {
+        return {
+            success: false,
+            message: "Invalid input data",
+        }
+    }
 
     try {
-        // Upsert to ensure one config exists
-        const config = await prisma.siteConfig.findFirst()
+        // Upsert: Create if not exists, update if exists
+        // Since we only have one config, we can findFirst or just use a fixed ID if we had one.
+        // For simplicity, we'll check if one exists.
+        const existing = await prisma.siteConfig.findFirst()
 
-        if (config) {
+        if (existing) {
             await prisma.siteConfig.update({
-                where: { id: config.id },
-                data: {
-                    themeColor: themeColor || undefined,
-                    heroBgUrl: heroBgUrl || undefined,
-                    metaTitle: metaTitle || undefined,
-                    metaDescription: metaDescription || undefined,
-                }
+                where: { id: existing.id },
+                data: validated.data,
             })
         } else {
             await prisma.siteConfig.create({
-                data: {
-                    themeColor: themeColor || '#2563eb',
-                    heroBgUrl: heroBgUrl || '/images/p1-bg.webp',
-                    metaTitle: metaTitle || 'Eternal Tower Saga',
-                    metaDescription: metaDescription || 'Join the adventure.',
-                }
+                data: validated.data,
             })
         }
 
         revalidatePath('/')
         revalidatePath('/admin/cms')
-        revalidatePath('/admin/seo')
 
-        return { success: true, message: "Configuration updated successfully" }
+        return {
+            success: true,
+            message: "Configuration updated successfully",
+        }
     } catch (error) {
-        console.error("Failed to update config", error)
-        return { success: false, message: "Failed to update configuration" }
+        console.error("Failed to update config:", error)
+        return {
+            success: false,
+            message: "Database error",
+        }
     }
 }

@@ -4,9 +4,9 @@ import { z } from 'zod'
 import prisma from '@/lib/prisma'
 import { headers } from 'next/headers'
 
-const schema = z.object({
-    email: z.string().email({ message: "Invalid email address" }),
-})
+import { UserRegistrationSchema } from '@/lib/schemas'
+
+const schema = UserRegistrationSchema
 
 export type State = {
     success: boolean

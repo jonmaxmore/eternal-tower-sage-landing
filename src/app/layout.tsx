@@ -10,7 +10,7 @@ async function getSiteConfig() {
   if (!process.env.DATABASE_URL) return null
   try {
     return await prisma.siteConfig.findFirst()
-  } catch (e) {
+  } catch (_) {
     return null
   }
 }
@@ -18,6 +18,7 @@ async function getSiteConfig() {
 export async function generateMetadata(): Promise<Metadata> {
   const config = await getSiteConfig()
   return {
+    metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'),
     title: config?.metaTitle || 'Eternal Tower Saga - Pre-register Now',
     description: config?.metaDescription || 'Join the anime MMORPG adventure. Pre-register today for exclusive rewards!',
     openGraph: {
