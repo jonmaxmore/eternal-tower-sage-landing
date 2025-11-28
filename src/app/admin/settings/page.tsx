@@ -1,5 +1,5 @@
 import prisma from '@/lib/prisma'
-import SettingsForm from './SettingsForm'
+import SiteConfigForm from '@/components/admin/SiteConfigForm'
 
 async function getSiteConfig() {
     try {
@@ -12,5 +12,5 @@ async function getSiteConfig() {
 export default async function Settings() {
     const config = await getSiteConfig()
 
-    return <SettingsForm initialConfig={config} />
+    return <SiteConfigForm initialConfig={config} />
 }
