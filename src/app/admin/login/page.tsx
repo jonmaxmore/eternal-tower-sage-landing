@@ -43,7 +43,7 @@ export default function AdminLogin() {
                 router.push('/admin')
                 router.refresh()
             }
-        } catch (err) {
+        } catch {
             setError('Something went wrong')
         } finally {
             setIsLoading(false)

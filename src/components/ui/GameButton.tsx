@@ -4,17 +4,18 @@ import { cn } from '@/lib/utils';
 
 interface GameButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
     isLoading?: boolean;
-    variant?: 'primary' | 'ghost' | 'unstyled';
+    variant?: 'primary' | 'secondary' | 'outline' | 'ghost';
     children: ReactNode;
 }
 
 export function GameButton({ className, isLoading, variant = 'primary', children, ...props }: GameButtonProps) {
-    const baseStyles = "transform transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2";
+    const baseStyles = "relative font-serif font-bold uppercase tracking-wider transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 overflow-hidden group";
 
     const variants = {
-        primary: "w-full bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white font-bold py-3 rounded-lg shadow-lg shadow-blue-600/20 hover:scale-[1.02]",
-        ghost: "bg-transparent hover:bg-white/10 text-white border border-white/20 py-2 px-4 rounded-lg",
-        unstyled: "hover:brightness-110", // Minimal styles for wrapping images
+        primary: "bg-gradient-to-r from-primary-600 to-primary-500 hover:from-primary-500 hover:to-primary-400 text-secondary-900 shadow-lg shadow-primary-500/20 hover:shadow-primary-500/40 py-4 px-8 rounded-sm clip-path-polygon",
+        secondary: "bg-secondary-800 hover:bg-secondary-700 text-primary-400 border border-primary-900/50 hover:border-primary-500/50 py-3 px-6 rounded-sm",
+        outline: "bg-transparent border-2 border-primary-500 text-primary-500 hover:bg-primary-500 hover:text-secondary-900 py-3 px-6 rounded-sm",
+        ghost: "bg-transparent hover:bg-white/5 text-slate-300 hover:text-white py-2 px-4 rounded-sm",
     };
 
     return (
@@ -27,13 +28,20 @@ export function GameButton({ className, isLoading, variant = 'primary', children
             disabled={isLoading || props.disabled}
             {...props}
         >
+            {/* Shine Effect for Primary */}
+            {variant === 'primary' && (
+                <div className="absolute inset-0 -translate-x-full group-hover:animate-[shimmer_1.5s_infinite] bg-gradient-to-r from-transparent via-white/20 to-transparent z-10" />
+            )}
+
             {isLoading ? (
                 <>
                     <Loader2 className="animate-spin w-5 h-5" />
-                    {variant === 'primary' && "Processing..."}
+                    <span className="sr-only">Loading...</span>
                 </>
             ) : (
-                children
+                <span className="relative z-20 flex items-center gap-2">
+                    {children}
+                </span>
             )}
         </button>
     )

@@ -6,17 +6,41 @@ import { z } from 'zod'
 
 const SiteConfigSchema = z.object({
     heroBgUrl: z.string().optional(),
+    milestonesBgUrl: z.string().optional(),
     metaTitle: z.string().min(1, "Title is required"),
     metaDescription: z.string().min(1, "Description is required"),
     isMaintenanceMode: z.boolean().optional(),
+    officialSiteUrl: z.string().optional(),
+    faviconUrl: z.string().optional(),
+    logoUrl: z.string().optional(),
+    socialFbUrl: z.string().optional(),
+    socialYtUrl: z.string().optional(),
+    socialDsUrl: z.string().optional(),
+    btnPreRegUrl: z.string().optional(),
+    btnDiscordUrl: z.string().optional(),
+    btnIosUrl: z.string().optional(),
+    btnGoogleUrl: z.string().optional(),
+    btnWindowsUrl: z.string().optional(),
 })
 
-export async function updateSiteConfig(prevState: any, formData: FormData) {
+export async function updateSiteConfig(prevState: unknown, formData: FormData) {
     const rawData = {
         heroBgUrl: formData.get('heroBgUrl'),
+        milestonesBgUrl: formData.get('milestonesBgUrl'),
         metaTitle: formData.get('metaTitle'),
         metaDescription: formData.get('metaDescription'),
         isMaintenanceMode: formData.get('isMaintenanceMode') === 'on',
+        officialSiteUrl: formData.get('officialSiteUrl'),
+        faviconUrl: formData.get('faviconUrl'),
+        logoUrl: formData.get('logoUrl'),
+        socialFbUrl: formData.get('socialFbUrl'),
+        socialYtUrl: formData.get('socialYtUrl'),
+        socialDsUrl: formData.get('socialDsUrl'),
+        btnPreRegUrl: formData.get('btnPreRegUrl'),
+        btnDiscordUrl: formData.get('btnDiscordUrl'),
+        btnIosUrl: formData.get('btnIosUrl'),
+        btnGoogleUrl: formData.get('btnGoogleUrl'),
+        btnWindowsUrl: formData.get('btnWindowsUrl'),
     }
 
     const validated = SiteConfigSchema.safeParse(rawData)
@@ -30,8 +54,6 @@ export async function updateSiteConfig(prevState: any, formData: FormData) {
 
     try {
         // Upsert: Create if not exists, update if exists
-        // Since we only have one config, we can findFirst or just use a fixed ID if we had one.
-        // For simplicity, we'll check if one exists.
         const existing = await prisma.siteConfig.findFirst()
 
         if (existing) {
@@ -46,7 +68,7 @@ export async function updateSiteConfig(prevState: any, formData: FormData) {
         }
 
         revalidatePath('/')
-        revalidatePath('/admin/cms')
+        revalidatePath('/admin/settings')
 
         return {
             success: true,

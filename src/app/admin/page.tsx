@@ -10,6 +10,7 @@ export default async function AdminDashboard() {
     const totalUsers = await prisma.user.count()
 
     // Get users registered in last 24h
+    // eslint-disable-next-line react-hooks/purity
     const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000)
     const newUsers = await prisma.user.count({
         where: {

@@ -17,11 +17,11 @@ export default async function Home() {
 
   return (
     <main className="min-h-screen flex flex-col">
-      <HeroSection heroBgUrl={config?.heroBgUrl} />
+      <HeroSection config={config} />
 
       {/* Content Wrapper for seamless dark background */}
       <div className="relative bg-slate-950">
-        <Milestones />
+        <Milestones bgUrl={config?.milestonesBgUrl} />
       </div>
 
       <Footer />

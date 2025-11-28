@@ -3,9 +3,8 @@
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { z } from 'zod'
 import { motion, AnimatePresence } from 'framer-motion'
-import { X, Loader2, CheckCircle } from 'lucide-react'
+import { X, CheckCircle } from 'lucide-react'
 import { registerUser } from '@/actions/register'
 import { GameButton } from '@/components/ui/GameButton'
 
@@ -53,7 +52,7 @@ export default function PreRegModal({ isOpen, onClose }: PreRegModalProps) {
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                         onClick={onClose}
-                        className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+                        className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4"
                     >
                         {/* Modal */}
                         <motion.div
@@ -63,13 +62,14 @@ export default function PreRegModal({ isOpen, onClose }: PreRegModalProps) {
                             onClick={(e) => e.stopPropagation()}
                             className="bg-slate-900 border border-slate-700 rounded-2xl p-6 w-full max-w-md relative shadow-2xl shadow-blue-900/20"
                         >
-                            <button
+                            <GameButton
+                                variant="ghost"
                                 onClick={onClose}
                                 aria-label="Close modal"
-                                className="absolute top-4 right-4 text-slate-400 hover:text-white transition-colors"
+                                className="absolute top-4 right-4 text-slate-400 hover:text-white hover:bg-white/10 p-2 w-auto h-auto rounded-full"
                             >
                                 <X size={24} />
-                            </button>
+                            </GameButton>
 
                             {isSuccess ? (
                                 <div className="text-center py-8">
@@ -80,8 +80,8 @@ export default function PreRegModal({ isOpen, onClose }: PreRegModalProps) {
                                     >
                                         <CheckCircle className="text-white w-10 h-10" />
                                     </motion.div>
-                                    <h3 className="text-2xl font-bold text-white mb-2">You're Registered!</h3>
-                                    <p className="text-slate-300 mb-6">Thank you for joining the Eternal Tower Saga. We'll notify you when the adventure begins.</p>
+                                    <h3 className="text-2xl font-bold text-white mb-2">You&apos;re Registered!</h3>
+                                    <p className="text-slate-300 mb-6">Thank you for joining the Eternal Tower Saga. We&apos;ll notify you when the adventure begins.</p>
                                     <button
                                         onClick={onClose}
                                         className="bg-blue-600 hover:bg-blue-500 text-white font-bold py-2 px-6 rounded-full transition-colors"

@@ -2,16 +2,16 @@
 
 import Image from "next/image";
 
-export default function Milestones() {
+export default function Milestones({ bgUrl }: { bgUrl?: string }) {
     return (
-        <section className="relative w-full h-auto bg-black">
+        <section className="relative w-full h-auto bg-secondary-900">
             {/* Container for Milestone Map Image
          - Uses aspect-ratio to maintain image ratio
          - On mobile (md:) might need a vertical image if available
       */}
             <div className="relative w-full aspect-[16/9] md:aspect-[1920/1080]">
                 <Image
-                    src="/images/p2-bg.webp"
+                    src={bgUrl || "/images/milestones-bg.webp"}
                     alt="Pre-registration Milestones"
                     fill
                     className="object-cover object-top"

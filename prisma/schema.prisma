@@ -27,10 +27,33 @@ model Admin {
 model SiteConfig {
   id                String   @id @default(cuid())
   themeColor        String   @default("#2563eb") // Default blue-600
-  heroBgUrl         String   @default("/images/p1-bg.webp")
+  
+  // Meta & General
   metaTitle         String   @default("Eternal Tower Saga - Pre-register Now")
   metaDescription   String   @default("Join the anime MMORPG adventure. Pre-register today for exclusive rewards!")
   isMaintenanceMode Boolean  @default(false)
+  officialSiteUrl   String?
+  faviconUrl        String?
+
+  // Backgrounds
+  heroBgUrl         String   @default("/images/p1-bg.webp")
+  milestonesBgUrl   String   @default("/images/p2-bg.webp")
+
+  // Images & Icons
+  logoUrl           String   @default("/images/logo.svg")
+  
+  // Social Links/Icons
+  socialFbUrl       String   @default("/images/fb-bt2.png")
+  socialYtUrl       String   @default("/images/ytb-bt2.png")
+  socialDsUrl       String   @default("/images/ds-bt2.png")
+
+  // Buttons
+  btnPreRegUrl      String   @default("/images/Btn-mail.png")
+  btnDiscordUrl     String   @default("/images/Btn-dc.png")
+  btnIosUrl         String   @default("/images/ios-btn.png")
+  btnGoogleUrl      String   @default("/images/gg-btn.png")
+  btnWindowsUrl     String   @default("/images/win-btn.png")
+
   updatedAt         DateTime @updatedAt
 }
 
